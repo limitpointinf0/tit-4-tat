@@ -1,0 +1,107 @@
+<div id="list-instagram" v-cloak>
+
+    <div class="container">
+      <div class="page-header text-center">
+        <h1>Instagram</h1>
+        <h2>Your Instagram links to promote.</h2>
+        <h2><b style="color:#28AFB0">Your Balance: {{me.pointsBalance}}</b></h2>
+        <div class="header-buttons">
+          <button class="btn btn-outline-primary" @click="clickAddButton()">Add an item</button>
+        </div>
+      </div>
+      <div class="listings" v-if="instagrams.length > 0">
+        <div class="card" :key="'ig'+ig.id" v-for="ig in instagrams">
+          <div class="card-options dropdown" v-if="ig.owner.id === me.id">
+            <span class="options-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-ellipsis-v"></span></span>
+            <div class="dropdown-menu dropdown-menu-right">
+              <span class="dropdown-item" @click="clickDeleteInstagram(ig.id)">Delete</span>
+            </div>
+          </div>
+          <span class="label" v-if="ig.description" @click="clickInstagramUrl(ig.url)">{{ig.description}}
+            <span class="fa fa-pencil-square" style="color:#28AFB0" v-if="ig.type == 'post'"></span>
+            <span class="fa fa-file-text" style="color:#28AFB0" v-if="ig.type == 'page'"></span>
+            <span class="fa fa-thumbs-up" style="color:#28AFB0" v-if="ig.engagement == 'like'"></span>
+            <span class="fa fa-arrow-circle-right" style="color:#28AFB0" v-if="ig.engagement == 'follow'"></span>
+            <span class="fa fa-commenting" style="color:#28AFB0" v-if="ig.engagement == 'comment'"></span>
+            <span style="color:red" style="color:#28AFB0" v-if="ig.active == false">[inactive]</span>             
+          <br/></span>
+          <small class="owner text-secondary" @click="clickInstagramUrl(ig.url)" v-if="ig.owner.id === me.id"><span class="fa fa-external-link mr-1"></span>{{ig.url}}</small>
+          <small class="owner text-secondary"><span class="fa fa-star mr-1"></span>{{ig.points}} points</small>
+        </div>
+      </div>
+      <div class="empty text-center" v-else><p>You have not advertised any posts or pages. <a href="/advertise/instagram/new" @click="clickAddButton()">Add something</a> to get started!</p></div>
+    </div>
+  
+    <% /* "Upload Instagram" modal */ %>
+    <modal v-if="virtualPageSlug === 'new'" v-cloak key="new" @close="closeUploadInstagramModal()">
+      <div class="modal-header">
+        <h5 class="modal-title">Add a new Instagram Post or Page</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+      <ajax-form action="uploadInstagram" :syncing.sync="syncing" :cloud-error.sync="cloudError" :handle-parsing="handleParsingUploadInstagramForm" @submitted="submittedUploadInstagramForm($event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Description</label>
+            <input class="form-control" type="text" v-model="uploadInstagramFormData.description" placeholder="My Selfie">
+          </div>
+          <div class="form-group">
+            <label>URL</label>
+            <input class="form-control" type="text" v-model="uploadInstagramFormData.url" placeholder="https://instagram.com/p/abcdefg">
+          </div>
+          <div class="form-group">
+            <label>Points</label>
+            <input class="form-control" type="number" v-model="uploadInstagramFormData.points">
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select class="form-control" v-model="uploadInstagramFormData.type">
+              <option value="post">post</option>
+              <option value="page">page</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Engagement</label>
+            <select class="form-control" v-model="uploadInstagramFormData.engagement">
+              <option value="like">like</option>
+              <option value="follow">follow</option>
+              <option value="comment">comment</option>
+            </select>
+          </div>
+          <div class="form-group float-right">
+              <input type="checkbox" v-model="uploadInstagramFormData.active" checked>
+              <label>active</label>
+          </div>
+        </div>
+        <div class="modal-footer flex-row-reverse justify-content-start">
+          <ajax-button type="submit" :syncing="syncing" class="btn btn-primary ml-1">Add</ajax-button>
+          <button data-dismiss="modal" class="btn btn-outline-primary mr-1">Cancel</button>
+        </div>
+      </ajax-form>   
+    </modal>
+  
+    <% /* "Delete Instagram" modal */ %>
+    <modal v-if="confirmDeleteInstagramModalOpen && selectedInstagram" v-cloak key="delete" @close="closeDeleteInstagramModal()">
+      <div class="modal-header">
+        <h5 class="modal-title">Remove this item?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+      <ajax-form action="destroyOneInstagram" :syncing.sync="syncing" :cloud-error.sync="cloudError" :handle-parsing="handleParsingDeleteInstagramForm" @submitted="submittedDeleteInstagramForm()">
+        <div class="modal-body">
+          <p>Are you sure you want to remove this instagram?</p>
+        </div>
+        <div class="modal-footer">
+          <button data-dismiss="modal" class="btn btn-outline-secondary mr-1">Nevermind</button>
+          <ajax-button type="submit" :syncing="syncing" class="btn btn-danger ml-1">Remove</ajax-button>
+        </div>
+      </ajax-form>
+    </modal>
+
+    <%/* For virtual pages */%>
+    <router-view></router-view>
+  </div>
+  <%- /* Expose server-rendered data as window.SAILS_LOCALS :: */ exposeLocalsToBrowser() %>
+  

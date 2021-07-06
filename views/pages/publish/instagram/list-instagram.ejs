@@ -1,0 +1,32 @@
+<div id="list-instagram-publish" v-cloak>
+
+    <div class="container">
+      <div class="page-header text-center">
+        <h1>Instagram</h1>
+        <h2>Instagram links to promote.</h2>
+        <h2><b style="color:#28AFB0">Your Balance: {{me.pointsBalance}}</b></h2>
+      </div>
+      <div class="listings" v-if="instagrams.length > 0">
+        <div class="card" :key="'ig'+ig.id" v-for="ig in instagrams">
+          <span class="label" v-if="ig.description" @click="clickInstagramUrl(ig.url, ig.id)">{{ig.description}}
+            <span class="fa fa-pencil-square" style="color:#28AFB0" v-if="ig.type == 'post'"></span>
+            <span class="fa fa-file-text" style="color:#28AFB0" v-if="ig.type == 'page'"></span>
+            <span class="fa fa-thumbs-up" style="color:#28AFB0" v-if="ig.engagement == 'like'"></span>
+            <span class="fa fa-arrow-circle-right" style="color:#28AFB0" v-if="ig.engagement == 'follow'"></span>
+          <br/>
+          <hr/>
+        </span>
+        <small class="owner text-secondary" @click="clickInstagramUrl(ig.url, ig.id)"><span class="fa fa-external-link mr-1"></span>{{ig.url}}</small>
+          <small class="owner text-secondary"><span class="fa fa-star mr-1"></span>{{ig.points}} points</small>
+          <small class="owner text-secondary"><span class="fa fa-user mr-1"></span>{{ig.owner.fullName}}</small>
+          <div v-if="ig.confirm == true">
+            <hr/>
+            <button class="btn-dark btn-sm btn-block" @click="clickInstagramUrlConfirm(ig.id, ig.points)">Confirm</button>
+          </div>
+        </div>
+      </div>
+      <div class="empty text-center" v-else><p>There are no available actions for you to take.</div>
+    </div>
+  </div>
+  <%- /* Expose server-rendered data as window.SAILS_LOCALS :: */ exposeLocalsToBrowser() %>
+  
